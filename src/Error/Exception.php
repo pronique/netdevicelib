@@ -1,6 +1,6 @@
 <?php
 /**
- * NetDeviceLib(tm)
+ * NetDeviceLib
  * Copyright (c) PRONIQUE Software (http://pronique.com)
  *
  * Licensed under The MIT License

@@ -1,6 +1,6 @@
 <?php 
 /**
- * NetDeviceLib(tm)
+ * NetDeviceLib
  * Copyright (c) PRONIQUE Software (http://pronique.com)
  *
  * Licensed under The MIT License
@@ -42,16 +42,17 @@ class Client {
 
 	public function __construct($config = []) {
 		$this->config($config);
+
 	}
 
 	public function connect( $host='', $port='' ) {
 		//Check to see if already connected
 		if ( $this->_connection ) { return true; }
 
-		if ( $host ) { $this->_configWrite('host', $host); }
-		if ( $port ) { $this->_configWrite('port', $port); }
+		if ( $host ) { $this->config('host', $host); }
+		if ( $port ) { $this->config('port', $port); }
 
-		$this->_connection = @ssh2_connect( $this->_configRead('host'), $this->_configRead('port') );
+		$this->_connection = @ssh2_connect( $this->config('host'), $this->config('port') );
 
 		if ( $this->_connection ) {
 			return true;
@@ -69,10 +70,10 @@ class Client {
 		// check to see if already authenticated
 		if ( $this->authenticated === true ) { return true; }
 
-		if ( $user ) { $this->_configWrite('user', $user); }
-		if ( $pass ) { $this->_configWrite('pass', $pass); }
+		if ( $user ) { $this->config('user', $user); }
+		if ( $pass ) { $this->config('pass', $pass); }
 
-		if ( ssh2_auth_password($this->_connection, $user, $pass) ) {
+		if ( ssh2_auth_password($this->_connection,  $this->config('user'),  $this->config('pass')) ) {
 			$this->authenticated = true;
 			return true;
 		}
@@ -80,7 +81,9 @@ class Client {
 	}
 
 	public function exec( $cmd ) {
+
 		$stream = ssh2_exec($this->_connection, $cmd);
+		stream_set_timeout($stream, $this->config('timeout'));
     stream_set_blocking($stream, true);
     return stream_get_contents($stream); 
 
