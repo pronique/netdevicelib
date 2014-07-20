@@ -1,0 +1,30 @@
+{
+	"name": "pronique/netdevicelib",
+	"description": "Network Device Interaction Libraty",
+	"type": "library",
+	"keywords": ["tcpip","snmp",""],
+	"homepage": "http://pronique.com",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "PRONIQUE Software",
+			"homepage": "http://pronique.com/"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/pronique/netdevicelib/issues",
+		"source": "https://github.com/pronique/netdevicelib"
+	},
+	"require": {
+		"php": ">=5.4.19"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"NetDeviceLib\\": "src",
+			"NetDeviceLib\\Test\\": "tests"
+		}
+	}
+}
