@@ -1,6 +1,6 @@
 {
 	"name": "pronique/netdevicelib",
-	"description": "Network Device Interaction Libraty",
+	"description": "Network Device Interaction Library",
 	"type": "library",
 	"keywords": ["tcpip","snmp","ssh"],
 	"homepage": "http://pronique.com",
