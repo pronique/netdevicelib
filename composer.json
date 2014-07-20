@@ -2,7 +2,7 @@
 	"name": "pronique/netdevicelib",
 	"description": "Network Device Interaction Libraty",
 	"type": "library",
-	"keywords": ["tcpip","snmp",""],
+	"keywords": ["tcpip","snmp","ssh"],
 	"homepage": "http://pronique.com",
 	"license": "MIT",
 	"authors": [
