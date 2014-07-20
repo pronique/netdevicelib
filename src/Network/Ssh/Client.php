@@ -12,10 +12,11 @@
  * @since         0.5.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace NetDeviceLib\Network;
+namespace NetDeviceLib\Network\Ssh;
 
 use NetDeviceLib\Core\InstanceConfigTrait;
 use NetDeviceLib\Error;
+use NetDeviceLib\Utility\Hash;
 
 class Client {
 
