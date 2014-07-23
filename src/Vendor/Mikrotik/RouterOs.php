@@ -66,6 +66,7 @@ class RouterOs {
 
 
 	public function exec( $cmd ) {
+		
 		return $this->_commandDriver->exec( $cmd );
 
 	}
