@@ -16,15 +16,21 @@
 		"source": "https://github.com/pronique/netdevicelib"
 	},
 	"require": {
-		"php": ">=5.4.19"
+		"php": ">=5.4.19",
+		"phpseclib/phpseclib": "php5-dev"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "*"
 	},
+	"suggest": {
+        "ext-mcrypt": "Install the Mcrypt extension in order to speed up a wide variety of cryptographic operations.",
+        "ext-gmp": "Install the GMP (GNU Multiple Precision) extension in order to speed up arbitrary precision integer arithmetic operations."
+	},
 	"autoload": {
 		"psr-4": {
 			"NetDeviceLib\\": "src",
-			"NetDeviceLib\\Test\\": "tests"
+			"NetDeviceLib\\Test\\": "tests",
+			"Vendor\\": "vendor"
 		}
 	}
 }

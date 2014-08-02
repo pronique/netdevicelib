@@ -12,7 +12,7 @@
  * @since         0.5.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace NetDeviceLib\Network\Ssh;
+namespace NetDeviceLib\Net\Ssh;
 
 use NetDeviceLib\Core\InstanceConfigTrait;
 use NetDeviceLib\Error;

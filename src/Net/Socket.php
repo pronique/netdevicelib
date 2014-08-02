@@ -12,7 +12,7 @@
  * @since         0.5.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace NetDeviceLib\Network;
+namespace NetDeviceLib\Net;
 
 use NetDeviceLib\Core\InstanceConfigTrait;
 
@@ -221,7 +221,7 @@ class Socket {
  * @return array IP addresses
  */
 	public function addresses() {
-		if (Validation::ip($this->_config['host'])) {
+		if ($this->validateIP($this->_config['host'])) {
 			return array($this->_config['host']);
 		}
 		return gethostbynamel($this->_config['host']);
