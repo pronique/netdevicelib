@@ -16,7 +16,7 @@ following to your
 `composer.json` file:
 
 	"require": {
-		"pronique/netdevicelib": "master-dev"
+		"pronique/netdevicelib": "dev-master"
 	}
 
 And run `php composer.phar update`
