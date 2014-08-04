@@ -12,12 +12,21 @@
  * @since         0.5.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace NetDeviceLib\Net;
+namespace NetDeviceLib\Device;
 
-interface ClientInterface {
 
-	public function connect();
-	public function disconnect();
-	public function exec();
-	
+use NetDeviceLib\Config\Config;
+use NetDeviceLib\Vendor\Mikrotik\RouterOS\Device;
+
+class DeviceFactory {
+
+	public function create($name) {
+
+		//$ns = explode("\\", $name);
+		$deviceClass = 'NetDeviceLib\\Vendor\\'.$name . "\\Device";
+
+		$Device = new $deviceClass();
+		return $Device;
+	}
+
 }

@@ -17,7 +17,8 @@
 	},
 	"require": {
 		"php": ">=5.4.19",
-		"phpseclib/phpseclib": "php5-dev"
+		"phpseclib/phpseclib": "php5-dev",
+		"bestnetwork/telnet": "1.0.*@dev"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "*"

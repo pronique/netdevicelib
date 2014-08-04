@@ -12,14 +12,15 @@
  * @since         0.5.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace NetDeviceLib\Net\Ssh;
+namespace NetDeviceLib\Net;
 
 use NetDeviceLib\Net\ClientInterface;
 use NetDeviceLib\Core\InstanceConfigTrait;
 use NetDeviceLib\Error;
 use NetDeviceLib\Utility\Hash;
+use Bestnetwork\Telnet\TelnetClient;
 
-class Client implements ClientInterface {
+class TelnetClient implements ClientInterface {
 
 	use InstanceConfigTrait;
 
@@ -31,7 +32,6 @@ class Client implements ClientInterface {
 	protected $_defaultConfig = [
 		'host' => null,
 		'port' => 22,
-		'scheme' => 'ssh2',
 		'timeout' => 12,
 		'user'=>null,
 		'pass'=>null
@@ -39,10 +39,14 @@ class Client implements ClientInterface {
 
 	protected $_connection;
 
+	protected $_credentials;
+
 	protected $authenticated = false;
 
 	public function __construct($config = []) {
 		$this->config($config);
+
+		$this->_telnetLib = new TelnetClient();
 
 	}
 
@@ -85,8 +89,11 @@ class Client implements ClientInterface {
 
 		$stream = ssh2_exec($this->_connection, $cmd);
 		stream_set_timeout($stream, $this->config('timeout'));
-    	stream_set_blocking($stream, true);
-    	return stream_get_contents($stream); 
+    stream_set_blocking($stream, true);
+    return stream_get_contents($stream); 
+
 	}
+
+
 
 }

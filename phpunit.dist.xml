@@ -8,7 +8,11 @@
             <directory>./tests/Unit/</directory>
         </testsuite>
     </testsuites>
-
+    <testsuites>
+        <testsuite name="NetDeviceLib (Physical) Lab Test Suite">
+            <directory>./tests/Lab/</directory>
+        </testsuite>
+    </testsuites>
     <!-- Code Coverage -->
     <filter>
         <whitelist>

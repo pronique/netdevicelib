@@ -14,11 +14,22 @@
  */
 namespace NetDeviceLib\Device;
 
-use NetDeviceLib\Device\DeviceInterface;
+//use NetDeviceLib\Device\DeviceInterface;
 use NetDeviceLib\Config\Config;
 
-class Device implements DeviceInterface {
+class BaseDevice /*implements DeviceInterface*/ {
+
+	protected $_client;
+
+	public function __construct($config = []) {
+		$this->config($config);
 
 
+	}
+
+	public function connect() {
+		
+		$this->_client->connect();
+	}
 
 }

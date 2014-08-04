@@ -12,12 +12,12 @@
  * @since         0.5.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace NetDeviceLib\Net;
+namespace NetDeviceLib\Auth;
 
-interface ClientInterface {
+interface CredentialsInterface {
 
-	public function connect();
-	public function disconnect();
-	public function exec();
+	public function get();
+	public function getUsername();
+	public function setUsername( $username );
 	
 }

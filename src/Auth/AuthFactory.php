@@ -12,12 +12,23 @@
  * @since         0.5.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace NetDeviceLib\Net;
+namespace NetDeviceLib\Auth;
 
-interface ClientInterface {
+class AuthFactory {
 
-	public function connect();
-	public function disconnect();
-	public function exec();
-	
+	protected static $_classNamespace = "\\NetDeviceLib\\Auth\\";
+
+	public static function credentials( $class='Credentials', $config=[] ) {
+ 
+		$fullClass = self::$_classNamespace.$class;
+
+		if (class_exists($fullClass)) {
+			$Credentials = new $fullClass( $config );
+			return $Credentials;
+		} else {
+			throw new \InvalidArgumentException('Invalid Credentials Class: ' . $fullClass  );
+		}
+		
+	}
+
 }

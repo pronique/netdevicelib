@@ -12,14 +12,20 @@
  * @since         0.5.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace NetDeviceLib\Vendor\Mikrotik\RouterOS\Device;
+namespace NetDeviceLib\Vendor\Mikrotik\RouterOS;
 
-use NetDeviceLib\Device\DeviceInterface;
-use NetDeviceLib\Device\Device;
+//use NetDeviceLib\Device\DeviceInterface;
+use NetDeviceLib\Device\BaseDevice;
 use NetDeviceLib\Config\Config;
 
-class Device extends NetDeviceLib\Device\Device implements DeviceInterface {
+class Device extends BaseDevice /*implements DeviceInterface*/ {
 
+	protected $Connection;
+
+	public function __construct($config = []) {
+		$this->config($config);
+
+	}
 
 
 }
