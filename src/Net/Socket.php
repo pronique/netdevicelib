@@ -17,7 +17,7 @@ namespace NetDeviceLib\Net;
 use NetDeviceLib\Core\InstanceConfigTrait;
 
 /**
- * CakePHP network socket connection class.
+ * Network socket connection class.
  *
  * Core base class for network communication.
  *
