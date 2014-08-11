@@ -22,6 +22,10 @@ class Credentials implements CredentialsInterface {
 
 	public function __construct( $config=[] ) {
 		if ( array_key_exists('username', $config)) {
+
+			if ( !$config['username'] ) {
+				throw new \Exception('Username cannot be blank');
+			}
 			$this->setUsername( $config['username'] );
 		}
 

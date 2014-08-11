@@ -18,6 +18,6 @@ interface ClientInterface {
 
 	public function connect();
 	public function disconnect();
-	public function exec();
+	public function execute( $cmd );
 	
 }

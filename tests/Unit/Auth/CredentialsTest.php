@@ -31,7 +31,7 @@ class CredentialsTest extends TestCase {
  */
 	public function setUp() {
 		parent::setUp();
-		//$this->Socket = new Socket(array('timeout' => 1));
+
 	}
 
 /**
@@ -41,7 +41,7 @@ class CredentialsTest extends TestCase {
  */
 	public function tearDown() {
 		parent::tearDown();
-		//unset($this->Socket);
+
 	}
 
 /**

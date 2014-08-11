@@ -290,6 +290,7 @@ class Socket {
 			$buffer = fread($this->connection, $length);
 			$info = stream_get_meta_data($this->connection);
 			if ($info['timed_out']) {
+				//echo "Socket::timeout\n";
 				$this->setLastError(E_WARNING, 'Connection timed out');
 				return false;
 			}
