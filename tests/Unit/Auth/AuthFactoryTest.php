@@ -14,12 +14,11 @@
  */
 namespace NetDeviceLib\Test\Unit\Auth;
 
-use NetDeviceLib\Net\Error\SocketException;
 use NetDeviceLib\Auth\AuthFactory;
 use NetDeviceLib\TestSuite\TestCase;
 
 /**
- * SocketTest class
+ * AuthFactoryTest class
  *
  */
 class AuthFactoryTest extends TestCase {
@@ -31,7 +30,6 @@ class AuthFactoryTest extends TestCase {
  */
 	public function setUp() {
 		parent::setUp();
-		//$this->Socket = new Socket(array('timeout' => 1));
 	}
 
 /**
@@ -41,16 +39,15 @@ class AuthFactoryTest extends TestCase {
  */
 	public function tearDown() {
 		parent::tearDown();
-		//unset($this->Socket);
 	}
 
 
-    /**
-     * testException method
-     * Test Invalid Credentials class 
-     *
-     * @expectedException InvalidArgumentException
-     */
+/**
+ * testException method
+ * Test Invalid Credentials class 
+ *
+ * @expectedException InvalidArgumentException
+ */
     public function testException() {
     	AuthFactory::credentials( 'FooClass', ['username'=>'admin', 'password'=>'abc123'] );
     }
@@ -72,8 +69,6 @@ class AuthFactoryTest extends TestCase {
 
 		$this->assertInstanceOf('\NetDeviceLib\Auth\SnmpV3Credentials', AuthFactory::credentials( 'SnmpV3Credentials' ));	
 
-
 	}
-
 
 }

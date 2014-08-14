@@ -51,14 +51,164 @@ WNIaeTEc9/iAuULylYb7
 
 	}
 
+
+/**
+ * testException method
+ * Test Object Construction
+ *
+ */
+    public function testConstruct() {
+		
+		$Client = new Client([
+			'ssh'=> [
+				'host'=>'127.0.0.1',
+				'authType'=>'password',
+				'credentials'=>[
+					'username'=>'testuser',
+					'password'=>'testpass'
+				]
+			]
+		]);
+
+		$this->assertSame( $Client->config(), [
+			'ssh'=> [
+				'host'=>'127.0.0.1',
+		        'port' => 22,
+		        'timeout' => 15,
+		        'methods' => [
+		            'kex' => 'diffie-hellman-group1-sha1'
+		        ],
+		        'authType' => 'password',
+		        'credentials' => [
+		            'username' => 'testuser',
+		            'password' => 'testpass'
+		        ]
+			],
+		    'eol' => "\n",
+		    'readTimeout' => 2,
+		    'skipPingBeforeConnect'=>false,
+		    'prompt' => [
+		        'command' => '$'
+		    ],
+		    'commands' => [
+		        'onConnect' => [],
+		        'onDisconnect' => [
+		     		'quit'
+		        ]
+		    ],
+			'tmpPath' => '/tmp'
+		]);
+
+    }
+
+/**
+ * testConstructInvalidAuthType method
+ * Test Invalid authType specified
+ *
+ * @expectedException Exception
+ */
+    public function testConstructInvalidAuthTypeException() {
+		
+		$Client = new Client([
+			'ssh'=> [
+				'host'=>'127.0.0.1',
+				'authType'=>'invalidEntry',
+				'credentials'=>[
+					'username'=>'testuser',
+					'password'=>'testpass'
+				]
+			]
+		]);
+
+    }
+
+/**
+ * testConstructInvalidAuthType method
+ * Test Invalid authType specified
+ *
+ * @expectedException Exception
+ */
+    public function testConnectTimeoutException() {
+		
+		$Client = new Client([
+			'ssh'=> [
+				'host'=>'169.254.255.255',
+				'authType'=>'password',
+				'credentials'=>[
+					'username'=>'testuser',
+					'password'=>'testpass'
+				]
+			]
+		]);
+
+		$Client->connect();
+
+    }
+
+/**
+ * testConnectTimeoutWithBadPort method
+ * Test that connecting to valid host but know bad ssh port
+ *
+ * @expectedException Exception
+ */
+    public function testConnectTimeoutWithBadPort() {
+		
+		$Client = new Client([
+			'ssh'=> [
+				'host'=>'cakephp.org',
+				'port'=>'65019',
+				'authType'=>'password',
+				'credentials'=>[
+					'username'=>'testuser',
+					'password'=>'testpass'
+				]
+			]
+		]);
+
+		$Client->connect();
+
+    }
+
+
+/**
+ * testPingBeforeConnect method
+ * Test TCP Ping Functionality
+ *
+ */
+    public function testPingBeforeConnect() {
+		
+		$Client = new Client([
+			'ssh'=> [
+				'host'=>'cakephp.org',
+				'authType'=>'password',
+				'credentials'=>[
+					'username'=>'testuser',
+					'password'=>'testpass'
+				]
+			]
+		]);
+
+		$this->assertRegExp('/^[0-9]+[.]?[0-9]+?/', (string)$Client->ping() );
+
+		$Client = new Client([
+			'ssh'=> [
+				'host'=>'fooinvalidbadhostname.com',
+				'authType'=>'password',
+				'credentials'=>[
+					'username'=>'testuser',
+					'password'=>'testpass'
+				]
+			]
+		]);
+		$this->assertFalse( $Client->ping() );
+	
+    }
 /**
  * testConstruct method
  *
  * @return void
  */
 	public function testConstructWithPasswordCredentials() {
-
-
 
 		$Client = new Client([
 			'ssh'=> [
@@ -87,7 +237,6 @@ WNIaeTEc9/iAuULylYb7
  * @return void
  */
 	public function testConstructWithSshPublicKeyCredentials() {
-
 
 		$Client = new Client([
 			'ssh'=> [

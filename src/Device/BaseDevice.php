@@ -14,22 +14,93 @@
  */
 namespace NetDeviceLib\Device;
 
-//use NetDeviceLib\Device\DeviceInterface;
-use NetDeviceLib\Config\Config;
+use NetDeviceLib\Core\InstanceConfigTrait;
+use NetDeviceLib\Error;
+use NetDeviceLib\Net;
 
-class BaseDevice /*implements DeviceInterface*/ {
+class BaseDevice {
 
-	protected $_client;
+	use InstanceConfigTrait;
 
+/**
+ * Default configuration for the device.
+ *
+ * @var array
+ */
+	protected $_defaultConfig = [
+		'client'=> [
+			'ssh' => [
+				'host' => null,
+				'port' => 22,
+				'timeout' => 15,
+				'methods'=>[
+					'kex'=>'diffie-hellman-group1-sha1'
+				],
+				'authType'=>'password',
+				'credentials'=>[
+					'username'=>'',
+					'password'=>''
+				]
+			],
+			'eol'=>"\n",
+			'readTimeout'=>2,
+			'prompt'=>[
+				'command'  => '$',
+			],
+			'commands'=>[
+				'onConnect'=>[],
+				'onDisconnect'=>[
+					'quit'
+				]
+			],
+			'tmpPath'=>'/tmp'
+		]
+	];
+
+/**
+ * Client Object
+ * 
+ */
+	public $Client;
+
+/**
+ * Config Object
+ * 
+ */
+	public $Config;
+
+/**
+ * __construct method
+ *
+ */
 	public function __construct($config = []) {
 		$this->config($config);
 
+		//Construct Client
+		switch( key($this->config('client')) ) {
+			case 'ssh':
+				$clientClass = '\NetDeviceLib\Net\Ssh\Client';
+				break;
+			case 'telnet':
+				$clientClass = '\NetDeviceLib\Net\Telnet\Client';
+				break;
+			default:
+				throw new Exception('Device: Invalid client type specified in configuration, use ssh or telnet');
+		}
 
+		$this->Client = new $clientClass($this->config('client'));
+
+		//Construct Config
+		$this->Config = new \NetDeviceLib\Config\BaseConfig( $this );
+	
 	}
 
 	public function connect() {
 		
-		$this->_client->connect();
+		$this->Client->connect();
+
 	}
+
+
 
 }

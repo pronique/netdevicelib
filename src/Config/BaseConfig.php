@@ -1,4 +1,4 @@
-<?php
+<?php 
 /**
  * NetDeviceLib
  * Copyright (c) PRONIQUE Software (http://pronique.com)
@@ -12,21 +12,32 @@
  * @since         0.5.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace NetDeviceLib\Device;
+namespace NetDeviceLib\Config;
 
 
-use NetDeviceLib\Config\Config;
-use NetDeviceLib\Vendor\Mikrotik\RouterOS\Device;
+class BaseConfig implements ConfigInterface {
 
-class DeviceFactory {
+	protected $_device;
 
-	public function create($name) {
+	function __construct( $Device ) {
+		$this->_device = $Device;
+	}
 
-		//$ns = explode("\\", $name);
-		$deviceClass = 'NetDeviceLib\\Vendor\\'.$name . "\\Device";
+	function read() {
+		//read Device config 
+		throw new \Exception('Classes that extend BaseConfig MUST override read() method');
+	}
 
-		$Device = new $deviceClass();
-		return $Device;
+	function update( $config ) {
+		throw new \Exception('Classes that extend BaseConfig MUST override update() method');
+	}
+
+	public function save( ) {
+		return;
+	}
+
+	function erase() {
+		//erase Device config
 	}
 
 }

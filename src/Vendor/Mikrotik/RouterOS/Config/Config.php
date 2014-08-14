@@ -15,10 +15,32 @@
 namespace NetDeviceLib\Vendor\Mikrotik\RouterOS\Config;
 
 use NetDeviceLib\Config\ConfigInterface;
-use NetDeviceLib\Config\Config;
+use NetDeviceLib\Config\BaseConfig;
 
-class Config extends NetDeviceLib\Config\Config implements ConfigInterface {
+class Config extends BaseConfig implements ConfigInterface {
 
+	protected $_device;
 
+	function __construct( $Device ) {
+		parent::__construct($Device);
+	}
+
+	public function read() {
+		return $this->_device->Client->execute('export');
+	}
+
+	public function updated( $config ) {
+		//Danger!
+		//return $this->_device->execute( $config );
+	}
+
+	public function save( ) {
+		return;
+	}
+
+	public function erase() {
+		//Danger!
+		//return $this->_device->execute('/system reset-config');
+	}
 
 }

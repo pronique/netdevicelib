@@ -44,6 +44,7 @@ class Client implements ClientInterface {
 		],
 		'eol'=>"\n",
 		'readTimeout'=>2,
+		'skipPingBeforeConnect'=>false,
 		'prompt'=>[
 			'command'  => '$',
 		],
@@ -67,7 +68,7 @@ class Client implements ClientInterface {
 	protected $_credentials;
 
 
-	protected $authenticated = false;
+	protected $_authenticated = false;
 
 	public function __construct($config = []) {
 
@@ -98,8 +99,20 @@ class Client implements ClientInterface {
 	public function connect( ) {
 
 		if (!$this->connected()) {
-			$this->_connect();
-			$this->_auth();
+			//Config says skip ping
+			if ( $this->config('skipPingBeforeConnect') === true ) {
+				$this->_connect();
+				$this->_auth();	
+				return;			
+			}
+
+			//TCP Ping before Connect, throw socket exeception if we cannot connect
+			if ( $this->ping() ) {
+				$this->_connect();
+				$this->_auth();
+			} else {
+				throw new \Exception('Cannot connect to socket: '.$this->config('ssh.host').':'.$this->config('ssh.port') );
+			}
 		}
 
 	}
@@ -111,6 +124,15 @@ class Client implements ClientInterface {
  */
 	public function connected() {
 		return $this->_connection !== null;
+	}
+
+/**
+ * Check whether authenticated was successful.
+ *
+ * @return bool
+ */
+	public function authenticated() {
+		return $this->_authenticated;
 	}
 
 /**
@@ -134,6 +156,7 @@ class Client implements ClientInterface {
 		stream_set_timeout($stream, $this->config('ssh.timeout'));
     	stream_set_blocking($stream, true);
     	return stream_get_contents($stream); 
+    	
 	}
 
 /**
@@ -144,6 +167,25 @@ class Client implements ClientInterface {
 	public function getCredentials() {
 		return $this->_credentials;
 	}
+
+/**
+ * TCP Port Ping
+ *
+ * @return false or 100ms
+ */
+	public function ping($host='', $port='', $timeout=4) { 
+		if ( !$host ) { $host = $this->config('ssh.host'); }
+		if ( !$port ) { $port = $this->config('ssh.port'); }
+
+	  	$tB = microtime(true); 
+		$fP = @fsockopen($host, $port, $errno, $errstr, $timeout);
+
+		if (!$fP) { return false; } 
+		$tA = microtime(true); 
+
+		return round((($tA - $tB) * 1000), 0); 
+	}
+
 
 /**
  * Connect to SSH Server
@@ -169,7 +211,7 @@ class Client implements ClientInterface {
 		//foreach ( $this->config('commands.onDisconnect') as $cmd ) {
 			//$this->_socket->write( $cmd . $this->config('eol') );
 		//}
-		$this->authenticated = false;
+		$this->_authenticated = false;
 		unset( $this->_connection );
 	}
 
@@ -182,13 +224,13 @@ class Client implements ClientInterface {
 	protected function _auth() {
 
 		// check to see if already authenticated
-		if ( $this->authenticated === true ) { return true; }
+		if ( $this->_authenticated === true ) { return true; }
 
 		switch( $this->config('ssh.authType') ) {
 
 			case 'password': // perform password auth
 				if ( @ssh2_auth_password($this->_connection, $this->_credentials->getUsername(),  $this->_credentials->getPassword()) ) {
-					$this->authenticated = true;
+					$this->_authenticated = true;
 					return true;
 				}
 				break;
@@ -202,7 +244,7 @@ class Client implements ClientInterface {
 						$this->_privKeyTempFile
 					)) {
 
-					$this->authenticated = true;
+					$this->_authenticated = true;
 					$this->_destroyTmpKeys();
 					return true;
 				}

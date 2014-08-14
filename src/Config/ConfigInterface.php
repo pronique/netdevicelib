@@ -1,4 +1,4 @@
-<?php
+<?php 
 /**
  * NetDeviceLib
  * Copyright (c) PRONIQUE Software (http://pronique.com)
@@ -12,20 +12,14 @@
  * @since         0.5.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace NetDeviceLib\Vendor\Mikrotik\RouterOS;
+namespace NetDeviceLib\Config;
 
-//use NetDeviceLib\Device\DeviceInterface;
-use NetDeviceLib\Device\BaseDevice;
-use NetDeviceLib\Config\Config;
+interface ConfigInterface {
 
-class Device extends BaseDevice /*implements DeviceInterface*/ {
+	function read();
 
-	protected $Connection;
+	function update( $config );
 
-	public function __construct($config = []) {
-		$this->config($config);
-
-	}
-
+	function erase();
 
 }
