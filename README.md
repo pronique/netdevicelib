@@ -8,6 +8,8 @@ HP, Dell, MikroTik, and many more.
 
 This project currently in development and is considered experimental at this stage.
 
+[Read the wiki for more information and usage examples](https://github.com/pronique/netdevicelib/wiki)
+
 ## Installing NetDeviceLib via composer
 
 You can install NetDeviceLib into your project using
