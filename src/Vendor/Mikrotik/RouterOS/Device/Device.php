@@ -16,6 +16,7 @@ namespace NetDeviceLib\Vendor\Mikrotik\RouterOS\Device;
 
 use NetDeviceLib\Device\BaseDevice;
 use NetDeviceLib\Vendor\Mikrotik\RouterOS\Config\Config;
+use DominionEnterprises\ColumnParser\MultispacedHeadersParser;
 
 /**
  * Vendor Specific Implementation to interact with Mikrotik RouterOS Devices
@@ -69,7 +70,20 @@ class Device extends BaseDevice {
  *
  * @return String;
  */
+	public function getTable( $command ) {
+		$response = $this->Client->execute( $command . ' print');
+		$responseArray = $this->_tableToArray( $response );
+		return $responseArray;
+	}
+
+/**
+ * Execute <command> print on device and return array
+ * for commands that return list format such as /queue simple print or /ip firewall filter print
+ *
+ * @return String;
+ */
 	public function getList( $command ) {
+		throw new \Exception('::getList() Currently in development');
 		$response = $this->Client->execute( $command . ' print');
 		$responseArray = $this->_tableToArray( $response );
 		return $responseArray;
@@ -153,49 +167,121 @@ class Device extends BaseDevice {
  * @return Array;
  */
 	protected function _tableToArray( $string ) {
-		throw new \Exception('TODO Work in Progress');
-		echo $string;
+
 		$flags = $this->_parseTableFlags( $string );
 
-		$lines = split("\n", $string );
+		//Get $string minus the flag map
+		$table_offset_index = strpos($string, "\n # ");
+		$string_wo_flags = trim(substr($string, $table_offset_index, strlen($string) ));
 
-		//Find Header Line
-		if ( $flags ) {
-			$headerLine = $lines[1];
-		} else {
-			$headerLine = $lines[0];
-		}
+		//Remove Comments and keep for later
+		list( $string_wo_comments, $comments ) = $this->_tableRemoveComments( $string_wo_flags );
 
-		//Get Column Names
-		$columns = $this->_parseTableHeader( $headerLine );
-		
-		//Parse Rows - Find index, flags, optional command, and columns
-		preg_match_all( "/\s?([0-9]+)\s?(X|I|D)?\s?(;;;([^\n]+))?\n/", $string, $matches );
+		//Call column parser library
+		$parser = new MultispacedHeadersParser( $string_wo_comments );
+		$data = $parser->getRows();
 
-		print_r( $matches );
-		exit;
+		//Add Comments back to $data
+		$data = $this->_tableAddComments( $data, $comments );
 
+		$data = $this->_tableFlagsFixup( $data );
+
+		$columns = $this->_tableGetColumns( $data );
 		$responseArray = [
-			'flags'=> $flags,
-			'data'=>[]
+			'flags'		=>	$flags,
+			'columns'	=>	$columns,
+			'data'		=>	$data
 		]; 
-
-		foreach ( $columns as $col ) {
-			$responseArray['data'][$col] = []; 
-		} 
 
 		return $responseArray;
 	}
 
+
+	protected function _tableGetColumns( $data ) {
+		if ( !array_key_exists(0, $data)  ) { return []; }
+		$keys = array_keys( $data[0] );
+		foreach ( $keys as $i=>$key ) {
+			if ( substr($key, 0, 1) == '_' ) {
+				unset( $keys[$i] );
+			} 
+		}
+		return $keys;
+	}
 /**
- * Utility Function Parse Flag
+ * Remove comments and return string without comments along with an array of comments
+ *
+ */
+
+	protected function _tableRemoveComments( $string ) {
+
+		preg_match_all('/(([0-9]+).*)[;]{3}\s(.*)\n\s+/', $string, $matches);
+
+		$comments = [];
+		$string_wo_comments = $string;
+
+
+		foreach( $matches[2] as $key=>$index ) {
+			$string_wo_comments = str_replace( $matches[0][$key], $matches[1][$key], $string_wo_comments);
+			$comments[$index] = $matches[3][$key];
+		}
+
+		return array( $string_wo_comments, $comments );
+	}
+
+
+/**
+ * Add comments back to array
+ *
+ */
+
+	protected function _tableAddComments( $dataArr, $comments ) {
+
+		foreach( $comments as $key=>$comment ) {
+			$dataArr[$key]['_comment'] = $comment;
+		}
+
+		return $dataArr;
+	}
+
+/**
+ * Deal with flags that end up in Index column
+ *
+ */
+
+	protected function _tableFlagsFixup( $dataArr ) {
+
+		foreach ($dataArr as $key=>$item ) {
+			preg_match_all('/([0-9]+)\s?(.+)?/', $item['#'], $matches);
+
+			
+			if ( $flags = str_split(trim($matches[2][0])) ) {
+				$dataArr[$key]['_flags'] = $matches[2][0];
+			}
+
+			$dataArr[$key]['_index'] = $matches[1][0];
+			unset( $dataArr[$key]['#'] );			
+
+
+		}
+
+
+		return $dataArr;
+	}
+
+/**
+ * Utility Function Parse Flags
  */
 	protected function _parseTableFlags( $string ) {
+
+		//convert newlines to spaces incase flags span multiple lines
+		$string = str_replace("\n", "\s", $string);
+
 		//Parse Flags
 		$flags = [];
-		if (!preg_match( '/Flags:\s(.*)\n/', $string, $matches ) ) {
+		if (!preg_match( '/Flags:\s(.*)/', $string, $matches ) ) {
 			return false;
 		}
+
 		$flagsExtract = $matches[1];
 		preg_match_all( '/([A-Z])\s-\s([a-z]+)/', $flagsExtract, $matches );
 		foreach( $matches[1] as $key=>$val ) {
@@ -204,12 +290,4 @@ class Device extends BaseDevice {
 		return $flags;
 	}
 
-/**
- * Utility Function Parse Flag
- */
-	protected function _parseTableHeader( $headerLine ) {
-		//Parse Header Row
-		preg_match_all('/([A-Z\#]+)[\s]+/', $headerLine, $matches );
-		return array_map('trim', $matches[0]);
-	}
 }
