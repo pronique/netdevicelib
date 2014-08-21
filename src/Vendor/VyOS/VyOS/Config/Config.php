@@ -12,7 +12,7 @@
  * @since         0.5.1
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-namespace NetDeviceLib\Vendor\Mikrotik\RouterOS\Config;
+namespace NetDeviceLib\Vendor\VyOS\VyOS\Config;
 
 use NetDeviceLib\Config\ConfigInterface;
 use NetDeviceLib\Config\BaseConfig;
@@ -26,21 +26,29 @@ class Config extends BaseConfig implements ConfigInterface {
 	}
 
 	public function read() {
-		return $this->_device->Client->execute('export');
+		$this->_device->Client->execute('set terminal length 0');
+
+		return $this->_device->Client->execute('show configuration');
+
 	}
 
 	public function update( $config ) {
 		//Danger!
-		//return $this->_device->execute( $config );
+		$this->_device->execute( 'configure' );
+		$this->_device->execute( $config );
 	}
 
 	public function save( ) {
+		$this->_device->Client->execute('configure');
+		$this->_device->Client->execute('commit');
+		$results = $this->_device->Client->execute('save');
+		echo $results;
+		exit;
 		return;
 	}
 
 	public function erase() {
-		//Danger!
-		//return $this->_device->execute('/system reset-config');
+		throw new \Exception('Not Implemented Yet');
 	}
 
 }

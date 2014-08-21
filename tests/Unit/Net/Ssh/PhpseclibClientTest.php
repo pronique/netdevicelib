@@ -16,14 +16,14 @@ namespace NetDeviceLib\Test\Unit\Ssh;
 
 use NetDeviceLib\Net\Error\SocketException;
 use NetDeviceLib\Net\Socket;
-use NetDeviceLib\Net\Ssh\Client;
+use NetDeviceLib\Net\Ssh\PhpseclibClient;
 use NetDeviceLib\TestSuite\TestCase;
 
 /**
  * Ssh\ClientTest class
  *
  */
-class ClientTest extends TestCase {
+class PhpseclibClientTest extends TestCase {
 
 	protected $testPrivateKey = '-----BEGIN DSA PRIVATE KEY-----
 MIIBuwIBAAKBgQCmk1l6HynNRkqwDRRzJfS33TTM1/lhO9Vy30JK6OyuGh6qiscY
@@ -59,7 +59,7 @@ WNIaeTEc9/iAuULylYb7
  */
     public function testConstruct() {
 		
-		$Client = new Client([
+		$Client = new PhpseclibClient([
 			'ssh'=> [
 				'host'=>'127.0.0.1',
 				'authType'=>'password',
@@ -112,7 +112,7 @@ WNIaeTEc9/iAuULylYb7
  */
     public function testConstructInvalidAuthTypeException() {
 		
-		$Client = new Client([
+		$Client = new PhpseclibClient([
 			'ssh'=> [
 				'host'=>'127.0.0.1',
 				'authType'=>'invalidEntry',
@@ -133,7 +133,7 @@ WNIaeTEc9/iAuULylYb7
  */
     public function testConnectTimeoutException() {
 		
-		$Client = new Client([
+		$Client = new PhpseclibClient([
 			'ssh'=> [
 				'host'=>'169.254.255.255',
 				'authType'=>'password',
@@ -156,7 +156,7 @@ WNIaeTEc9/iAuULylYb7
  */
     public function testConnectTimeoutWithBadPort() {
 		
-		$Client = new Client([
+		$Client = new PhpseclibClient([
 			'ssh'=> [
 				'host'=>'cakephp.org',
 				'port'=>'65019',
@@ -180,7 +180,7 @@ WNIaeTEc9/iAuULylYb7
  */
     public function testPingBeforeConnect() {
 		
-		$Client = new Client([
+		$Client = new PhpseclibClient([
 			'ssh'=> [
 				'host'=>'cakephp.org',
 				'authType'=>'password',
@@ -193,7 +193,7 @@ WNIaeTEc9/iAuULylYb7
 
 		$this->assertRegExp('/^[0-9]+[.]?[0-9]+?/', (string)$Client->ping() );
 
-		$Client = new Client([
+		$Client = new PhpseclibClient([
 			'ssh'=> [
 				'host'=>'fooinvalidbadhostname.com',
 				'authType'=>'password',
@@ -213,7 +213,7 @@ WNIaeTEc9/iAuULylYb7
  */
 	public function testConstructWithPasswordCredentials() {
 
-		$Client = new Client([
+		$Client = new PhpseclibClient([
 			'ssh'=> [
 				'host'=>'127.0.0.1',		
 				'authType'=>'password',
@@ -228,7 +228,6 @@ WNIaeTEc9/iAuULylYb7
 
 		]);
 
-		//var_dump( $Client );
 		$this->assertInstanceOf('\NetDeviceLib\Auth\Credentials', $Client->getCredentials() );
 
 	}
@@ -241,7 +240,7 @@ WNIaeTEc9/iAuULylYb7
  */
 	public function testConstructWithSshPublicKeyCredentials() {
 
-		$Client = new Client([
+		$Client = new PhpseclibClient([
 			'ssh'=> [
 				'host'=>'127.0.0.1',
 				'authType'=>'publicKey',
@@ -253,7 +252,6 @@ WNIaeTEc9/iAuULylYb7
 			]
 		]);
 
-		//var_dump( $Client );
 		$this->assertInstanceOf('\NetDeviceLib\Auth\SshPublicKeyCredentials', $Client->getCredentials()  );
 
 	}

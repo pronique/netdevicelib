@@ -29,6 +29,7 @@ class BaseDevice {
  */
 	protected $_defaultConfig = [
 		'client'=> [
+			'className' => '\NetDeviceLib\Net\Ssh\Client',
 			'ssh' => [
 				'host' => null,
 				'port' => 22,
@@ -76,16 +77,19 @@ class BaseDevice {
 	public function __construct($config = []) {
 		$this->config($config);
 
+		$className = $this->config('client.className'); 
+		unset( $this->_config['client']['className'] );
+
 		//Construct Client
 		switch( key($this->config('client')) ) {
 			case 'ssh':
-				$clientClass = '\NetDeviceLib\Net\Ssh\Client';
+				$clientClass = $className;
 				break;
 			case 'telnet':
 				$clientClass = '\NetDeviceLib\Net\Telnet\Client';
 				break;
 			default:
-				throw new Exception('Device: Invalid client type specified in configuration, use ssh or telnet');
+				throw new \Exception('Device: Invalid client type specified in configuration, use ssh or telnet');
 		}
 
 		$this->Client = new $clientClass($this->config('client'));

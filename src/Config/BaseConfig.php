@@ -33,11 +33,11 @@ class BaseConfig implements ConfigInterface {
 	}
 
 	public function save( ) {
-		return;
+		throw new \Exception('Classes that extend BaseConfig MUST override save() method');
 	}
 
 	function erase() {
-		//erase Device config
+		throw new \Exception('Classes that extend BaseConfig MUST override erase() method');
 	}
 
 }

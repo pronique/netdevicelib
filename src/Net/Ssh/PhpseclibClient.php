@@ -19,7 +19,7 @@ use NetDeviceLib\Core\InstanceConfigTrait;
 use NetDeviceLib\Error;
 use NetDeviceLib\Auth\AuthFactory;
 
-class Client implements ClientInterface {
+class PhpseclibClient implements ClientInterface {
 
 	use InstanceConfigTrait;
 
@@ -59,7 +59,14 @@ class Client implements ClientInterface {
 		'tmpPath'=>'/tmp'
 	];
 
-	protected $_connection;
+
+
+/**
+ * Phpseclib Object
+ *
+ * @var \phpseclib\Net\SSH2
+ */
+	protected $_phpseclib;
 
 
 /**
@@ -125,7 +132,7 @@ class Client implements ClientInterface {
  * @return bool
  */
 	public function connected() {
-		return $this->_connection !== null;
+		return $this->_phpseclib !== null;
 	}
 
 /**
@@ -146,21 +153,42 @@ class Client implements ClientInterface {
  * @return void
  */
 	public function disconnect() {
+		//print_r( 'PhpseclibClient::disconnect()');
 		if ($this->connected()) {
 			$this->_disconnect();
 		}
 	}
 
 
-	public function execute( $cmd ) {
+	public function execute( $cmd ) {	
+		
+		$this->write( $cmd );
+		
+		$response =  $this->read();
+		
+		//Remove ANSI
+		$response = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "",$response); 
+    	$response = preg_replace('/\x1b(\[|\(|\))[;?0-9]*[0-9A-Za-z]/', "",$response); 
+    	$response = preg_replace('/[\x03|\x1a]/', "", $response);  
+    	$response = preg_replace('/[\x1B][\x3D][\x0D]/', "", $response);  
+    	$response = preg_replace('/[\x1B][\x3E]/', "", $response);  
 
-		//$stream = ssh2_exec($this->_connection, $cmd, $this->config('ssh.pty'), $this->config('ssh.env'));
-		//$stream = ssh2_exec($this->_connection, $cmd, $this->config('ssh.pty'));
-		$stream = ssh2_exec($this->_connection, $cmd);
-		stream_set_timeout($stream, $this->config('ssh.timeout'));
-    	stream_set_blocking($stream, true);
-    	return stream_get_contents($stream); 
-    	
+		preg_match("/(".preg_quote($cmd).")(.*)(".preg_quote( $this->config('prompt.command') ).")/s", $response, $matches );
+
+		//$clean = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $matches[2]);
+
+		return trim($matches[2]);
+
+	}
+
+	public function read( ) {
+		usleep(500000);
+		return (string)$this->_phpseclib->read( $this->config('prompt.command') );
+	}
+
+	public function write( $cmd ) {
+		usleep(500000);
+    	return $this->_phpseclib->write( $cmd . "\n" );
 	}
 
 /**
@@ -199,8 +227,10 @@ class Client implements ClientInterface {
  */
 	protected function _connect() {
 
-		$this->_connection = @ssh2_connect( $this->config('ssh.host'), $this->config('ssh.port'), $this->config('ssh.methods') );
-		if ( $this->_connection === false ) {
+		try {
+			$this->_phpseclib = new \Net_SSH2( $this->config('ssh.host'), $this->config('ssh.port'), $this->config('ssh.timeout') );
+
+		} catch ( Exception $e ) {
 			throw new \Exception('Unable to connect to SSH server.');
 		}
 
@@ -216,7 +246,7 @@ class Client implements ClientInterface {
 			//$this->_socket->write( $cmd . $this->config('eol') );
 		//}
 		$this->_authenticated = false;
-		unset( $this->_connection );
+		unset( $this->_phpseclib );
 	}
 
 
@@ -233,25 +263,28 @@ class Client implements ClientInterface {
 		switch( $this->config('ssh.authType') ) {
 
 			case 'password': // perform password auth
-				if ( @ssh2_auth_password($this->_connection, $this->_credentials->getUsername(),  $this->_credentials->getPassword()) ) {
+				if ($this->_phpseclib->login($this->_credentials->getUsername(), $this->_credentials->getPassword())) {
+					//get last line and set as prompt
+					$response = $this->_phpseclib->read( $this->config('prompt.command') );
+					$lines = split( "\n", $response );
+					$this->config('prompt.command', trim(end($lines)) );
+
 					$this->_authenticated = true;
 					return true;
 				}
+
 				break;
 			case 'publicKey': // perform public key auth
 				$this->_writeTmpKeys();
 
-				if ( @ssh2_auth_pubkey_file(
-						$this->_connection, 
-						$this->_credentials->getUsername(),  
-						$this->_pubKeyTempFile,
-						$this->_privKeyTempFile
-					)) {
+				$privkey = new \Crypt_RSA(); //phpseclib has no DSA support :(
+				$privkey->loadKey( $this->_pubKeyTempFile );
 
-					$this->_authenticated = true;
+				if ($this->_phpseclib->login($this->_credentials->getUsername(), $privkey)) {
 					$this->_destroyTmpKeys();
+					$this->_authenticated = true;
 					return true;
-				}
+				} 
 
 				$this->_destroyTmpKeys();
 				break;
