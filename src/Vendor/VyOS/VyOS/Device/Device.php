@@ -14,6 +14,7 @@
  */
 namespace NetDeviceLib\Vendor\VyOS\VyOS\Device;
 
+use NetDeviceLib\Core\InstanceConfigTrait;
 use NetDeviceLib\Device\BaseDevice;
 use NetDeviceLib\Vendor\VyOS\VyOS\Config\Config;
 use DominionEnterprises\ColumnParser\MultispacedHeadersParser;
@@ -24,6 +25,30 @@ use DominionEnterprises\ColumnParser\MultispacedHeadersParser;
  * 
  */
 class Device extends BaseDevice {
+
+/**
+ * Default configuration for the device.
+ *
+ * @var array
+ */
+	protected $_defaultConfig = [
+		'client'=> [
+			'className' => '\NetDeviceLib\Net\Ssh\PhpseclibClient',
+			'ssh' => [
+				'host' => null,
+				'port' => 22,
+				'timeout' => 15,
+				'authType'=>'password',
+				'credentials'=>[
+					'username'=>'',
+					'password'=>''
+				]
+			],
+			'prompt'=>[
+				'command'  => '$',
+			]
+		]
+	];
 
 /**
  * Instance of Net\<Protocol>\Client class

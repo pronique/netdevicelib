@@ -31,6 +31,7 @@ class VendorFactory {
 
 		if (class_exists($fullClass)) {
 			$Device = new $fullClass( $config );
+
 			return $Device;
 		} else {
 			throw new \InvalidArgumentException('Invalid Vendor Class Specified: ' . $fullClass  );
